@@ -1,133 +1,198 @@
 [[decentralized_applications_chap]]
 == Decentralized Applications (DApps)
 
+分布式应用
+
 ((("DApps (decentralized applications)", id="ix_12dapps-asciidoc0", range="startofrange")))In this chapter we will explore the world of _decentralized applications_, or _DApps_. From the early days of Ethereum, the founders' vision was much broader than "smart contracts": ((("web3")))no less than reinventing the web and creating a new world of DApps, aptly called _web3_. Smart contracts are a way to decentralize the controlling logic and payment functions of applications. Web3 DApps are about decentralizing all other aspects of an application: storage, messaging, naming, etc. (see <<image_web3_suite>>).
+
+在本章中，我们将探讨分布式应用或DApps的世界。从以太坊的早期开始，创始人的愿景远比“智能合约”更广阔：不亚于重新创建网络并创建一个新的DApp世界，称为web3恰如其分。智能合约是分布式应用程序的控制逻辑和支付功能的一种方式。 Web3 DApps是关于分布式应用程序的其他所有方面：存储，消息传递，命名等（参见Web3：使用智能合约和P2P技术的分布式Web）
 
 [[image_web3_suite]]
 .Web3: A decentralized web using smart contracts and P2P technologies
+.Web3：使用智能合约和P2P技术的分布式Web
 image::images/web3suite.png["Web3: A decentralized web using smart contracts and P2P Technologies"]
 
 [WARNING]
 ====
 While "decentralized apps" are an audacious vision of the future, the term "DApp" is often applied to any smart contract with a web frontend. Some of these so-called DApps are highly centralized applications (CApps?). Beware of false DApps!
 ====
+虽然“分布式应用程序”是对未来的大胆愿景，但“DApp”一词通常适用于任何具有Web前端的智能合约。其中一些所谓的DApps是高度集中的应用程序（CApps？）。小心虚假的DApps！
 
 In this chapter we will develop and deploy a sample DApp: an auction platform. You can find the source code in the book's repository under http://bit.ly/2DcmjyA[_code/auction_dapp_]. We will look at each aspect of an auction application and see how we can decentralize the application as much as possible. First, though, let's take a closer look at the defining characteristics and advantages of DApps.
 
+在本章中，我们将开发和部署一个样本DApp：一个拍卖平台。您可以在code/auction_dapp下的图书库中找到源代码。我们将查看拍卖应用程序的每个方面，并了解我们如何尽可能地分散应用程序。首先，让我们仔细研究一下DApps的定义特征和优势。
+
 [[what_is_a_dapp_sec]]
 === What Is a DApp?
+什么是DApp？
 
 ((("DApps (decentralized applications)","elements of", id="ix_12dapps-asciidoc1", range="startofrange")))A DApp is an application that is mostly or entirely decentralized.
+DApp是一个大部分或完全分散的应用程序。
 
 Consider all the possible aspects of an application that may be decentralized:
-
+考虑一个应用程序能分散的所有可能的方面：
 * Backend software (application logic)
+后端软件（应用程序逻辑）
 * Frontend software
+前端软件
 * Data storage
+数据存储
 * Message communications
+消息通信
 * Name resolution
+名称解析
 
 Each of these can be somewhat centralized or somewhat decentralized. For example, a frontend can be developed as a web app that runs on a centralized server, or as a mobile app that runs on your device. The backend and storage can be on private servers and proprietary databases, or you can use a smart contract and P2P storage.
 
+这些中的每一个都可以在某种程度上集中或稍微分散。例如，可以将前端开发为在中央服务器上运行的Web应用程序，或者作为在您的设备上运行的移动应用程序。后端和存储可以位于私有服务器和专有数据库上，也可以使用智能合约和P2P存储。
+
 There are many advantages to creating a DApp that a typical centralized architecture cannot provide:
+创建的DApp有很多典型集中式架构无法提供的优点：
 
 Resiliency::
+弹性
 Because the business logic is controlled by a smart contract, a DApp backend will be fully distributed and managed on a blockchain platform. Unlike an application deployed on a centralized server, a DApp will have no downtime and will continue to be available as long as the platform is still operating.
+由于业务逻辑由智能合约控制，因此DApp后端将在区块链平台上完全分发和管理。与部署在集中式服务器上的应用程序不同，DApp将没有停机时间，只要平台仍在运行，它就会继续可用。
 
 Transparency::
+透明度
 The on-chain nature of a DApp allows everyone to inspect the code and be more sure about its function. Any interaction with the DApp will be stored forever in the blockchain.
+DApp的链上特性允许每个人检查代码并更加确定其功能。与DApp的任何交互都将永久存储在区块链中。
 
 Censorship resistance::
+审查阻力
 As long as a user has access to an Ethereum node (running one if necessary), the user will always be able to interact with a DApp without interference from any centralized control. No service provider, or even the owner of the smart contract, can alter the code once it is deployed on the network.
+只要用户可以访问以太坊节点（必要时运行一个），用户将始终能够与DApp交互而不受任何集中控制的干扰。在网络上部署代码后，任何服务提供商，甚至智能合约的所有者都无法更改代码。
 
 In the Ethereum ecosystem as it stands today, there are very few truly decentralized apps&#x2014;most still rely on centralized services and servers for some part of their operation. In the future, we expect that it will be possible for every part of any DApp to be operated in a fully decentralized way.
+在今天的以太坊生态系统中，很少有真正分散的应用程序 - 大多数仍然依赖于集中服务和服务器来完成其部分操作。在未来，我们希望任何DApp的每个部分都可以以完全分散的方式运行。
 
 [[blockchain_smart_contracts_sec]]
 ==== Backend (Smart Contract)
-
+后端（智能合约）
 ((("DApps (decentralized applications)","backend (smart contract)")))((("smart contracts","as DApp backend")))In a DApp, smart contracts are used to store the business logic (program code) and the related state of your application. You can think of a smart contract replacing a server-side (aka "backend") component in a regular application. This is an oversimplification, of course. One of the main differences is that any computation executed in a smart contract is very expensive and so should be kept as minimal as possible. It is therefore important to identify which aspects of the application need a trusted and decentralized execution platform.
+在DApp中，智能合约用于存储业务逻辑（程序代码）和应用程序的相关状态。您可以认为在常规应用程序中替换服务器端（也称为“后端”）组件的智能合约。当然，这是一种过于简单化的做法。其中一个主要区别是智能合约中执行的任何计算都非常昂贵，因此应尽可能保持最小化。因此，确定应用程序的哪些方面需要可信、分散的执行平台非常重要。
 
 Ethereum smart contracts allow you to build architectures in which a network of smart contracts call and pass data between each other, reading and writing their own state variables as they go, with their complexity restricted only by the block gas limit. After you deploy your smart contract, your business logic could well be used by many other developers in the future.
+以太坊智能合约允许您构建架构，其中智能合约网络在彼此之间调用和传递数据，随时读取和写入自己的状态变量，其复杂性仅区块 gas limit的限制。部署智能合约后，未来许多其他开发人员都可以使用您的业务逻辑。
 
 One major consideration of smart contract architecture design is the inability to change the code of a smart contract once it is deployed. It can be deleted if it is programmed with an accessible +SELFDESTRUCT+ opcode, but other than complete removal, the code cannot be changed in any way.
+智能合约架构设计的一个主要考虑因素是部署后无法更改智能合约的代码。如果使用可访问的 SELFDESTRUCT 操作码对其进行编程，则可以将其删除，但除完全删除外，不能以任何方式更改代码。
 
 The second major consideration of smart contract architecture design is DApp size. A really large monolithic smart contract may cost a lot of gas to deploy and use. Therefore, some applications may choose to have off-chain computation and an external data source. Keep in mind, however, that having the core business logic of the DApp be dependent on external data (e.g., from a centralized server) means your users will have to trust these external resources.
+智能合约架构设计的第二个主要考虑因素是DApp大小。一个非常庞大的单片智能合约可能会花费大量的gas来部署和使用。因此，某些应用程序可能会选择进行离线计算和外部数据源。但请记住，让DApp的核心业务逻辑依赖于外部数据（例如，来自中央服务器）意味着您的用户必须信任这些外部资源。
 
 [[front_end_web_ui_cec]]
 ==== Frontend (Web User Interface)
+前端（Web用户界面）
 
 ((("DApps (decentralized applications)","frontend (web user interface)")))((("user interface, as DApp frontend")))((("web user interface, as DApp frontend")))Unlike the business logic of the DApp, which requires a developer to understand the EVM and new languages such as Solidity, the client-side interface of a DApp can use standard web technologies (HTML, CSS, JavaScript, etc.). This allows a traditional web developer to use familiar tools, libraries, and frameworks. Interactions with Ethereum, such as signing messages, sending transactions, and managing keys, are often conducted through the web browser, via an extension such as MetaMask (see <<intro_chapter>>).
+与DApp的业务逻辑不同，DApp需要开发人员理解EVM和新语言（如Solidity），DApp的客户端接口可以使用标准Web技术（HTML，CSS，JavaScript等）。这允许传统的Web开发人员使用熟悉的工具，库和框架。与以太坊的交互，例如签名消息，发送交易和管理密钥，通常通过网络浏览器，通过MetaMask等扩展进行（参见[intro_chapter]）。
 
 Although it is possible to create a mobile DApp as well, currently there are few resources to help create mobile DApp frontends, mainly due to the lack of mobile clients that can serve as a light client with key-management functionality.
+虽然也可以创建移动DApp，但目前很少有资源可以帮助创建移动DApp前端，这主要是因为缺少可以作为具有密钥管理功能的轻客户端的移动客户端。
 
 The frontend is usually linked to Ethereum via the _web3.js_ JavaScript library, which is bundled with the frontend resources and served to a browser by a web server.
+前端通常通过web3.js JavaScript库链接到以太坊，该库与前端资源捆绑在一起，并由Web服务器提供给浏览器。
 
 [[data_storage_sec]]
 ==== Data Storage
+数据存储
 
 ((("DApps (decentralized applications)","data storage")))((("data storage","DApps and")))Due to high gas costs and the currently low block gas limit, smart contracts are not well suited to storing or processing large amounts of data. Hence, most DApps utilize off-chain data storage services, meaning they store the bulky data off the Ethereum chain, on a data storage platform. That data storage platform can be centralized (for example, a typical cloud database), or the data can be decentralized, stored on a P2P platform such as the IPFS, or Ethereum's own Swarm platform.
+由于高昂的gas成本和目前较低的区块gas limit，智能合约不太适合存储或处理大量数据。因此，大多数DApps利用离线数据存储服务，这意味着它们将数据存储平台上的庞大数据存储在以太坊链中。该数据存储平台可以是集中的（例如，典型的云数据库），或者数据可以分散，存储在诸如IPFS的P2P平台或者以太坊自己的Swarm平台上。
 
 Decentralized P2P storage is ideal for storing and distributing large static assets such as images, videos, and the resources of the application's frontend web interface (HTML, CSS, JavaScript, etc.). We'll look at a few of the options next.
+分散式P2P存储非常适合存储和分发大型静态资产，如图像，视频和应用程序前端Web界面（HTML，CSS，JavaScript等）的资源。我们接下来会看几个选项。
 
 [[ipfs_sec]]
 ===== IPFS
 
 ((("DApps (decentralized applications)","IPFS and")))((("data storage","IPFS")))((("IPFS (InterPlanetary File System)")))The _Inter-Planetary File System_ (IPFS) is a decentralized content-addressable storage system that distributes stored objects among peers in a P2P network. "Content addressable" means that each piece of content (file) is hashed and the hash is used to identify that file. You can then retrieve any file from any IPFS node by requesting it by its hash.
+星际文件系统（IPFS）是一种分散的内容可寻址存储系统，它在P2P网络中的对等体之间分配存储的对象。 “内容可寻址”意味着对每条内容（文件）进行散列并使用散列来标识该文件。然后，您可以通过其哈希请求从任何IPFS节点检索任何文件。
 
 IPFS aims to replace HTTP as the protocol of choice for delivery of web applications. Instead of storing a web application on a single server, the files are stored on IPFS and can be retrieved from any IPFS node.
+IPFS旨在取代HTTP作为交付Web应用程序的首选协议。这些文件不是在单个服务器上存储Web应用程序，而是存储在IPFS上，可以从任何IPFS节点检索。
 
 More information about IPFS can be found at https://ipfs.io[].
-
+有关IPFS的更多信息，请访问https://ipfs.io。
 
 [[swarm_sec]]
 ===== Swarm
 
 ((("DApps (decentralized applications)","Swarm and")))((("data storage","Swarm")))((("Swarm")))Swarm is another content-addressable P2P storage system, similar to IPFS. Swarm was created by the Ethereum Foundation, as part of the Go-Ethereum suite of tools. Like IPFS, it allows you to store files that get disseminated and replicated by Swarm nodes. You can access any Swarm file by referring to it by a hash. Swarm allows you to access a website from a decentralized P2P system, instead of a central web server.
+Swarm是另一种内容可寻址的P2P存储系统，类似于IPFS。 Swarm由以太坊基金会创建，作为Go-Ethereum工具套件的一部分。与IPFS一样，它允许您存储由Swarm节点传播和复制的文件。您可以通过哈希引用任何Swarm文件来访问它。 Swarm允许您从分散的P2P系统访问网站，而不是中央Web服务器。
 
 The home page for Swarm is itself stored on Swarm and accessible on your Swarm node or a gateway:
 https://swarm-gateways.net/bzz:/theswarm.eth/[].
-
+Swarm的主页本身存储在Swarm上，可以在Swarm节点或网关上访问：https：//swarm-gateways.net/bzz：/theswarm.eth/。
 
 [[interdapp_coammunications_protocol_sec]]
 ==== Decentralized Message Communications Protocols
+分散的消息通信协议
 
 ((("DApps (decentralized applications)","decentralized message communication protocols")))((("message communication protocols")))Another major component of any application is inter-process communication. That means being able to exchange messages between applications, between different instances of the application, or between users of the application. Traditionally, this is achieved by reliance on a centralized server. However, there are a variety of decentralized alternatives to server-based protocols, offering messaging over a P2P network. ((("Whisper")))The most notable P2P messaging protocol for DApps is http://bit.ly/2CSls5h[_Whisper_], which is part of the Ethereum Foundation's Go-Ethereum suite of tools.
+任何应用程序的另一个主要组件是进程间通信。这意味着能够在应用程序之间，应用程序的不同实例之间或应用程序的用户之间交换消息。传统上，这是通过依赖中央服务器来实现的。但是，基于服务器的协议有各种分散的替代方案，通过P2P网络提供消息传递。最值得注意的DApps P2P消息传递协议是Whisper，它是以太坊基金会Go-Ethereum工具套件的一部分。
 
 The final aspect of an application that can be decentralized is name resolution. We'll take a close look at Ethereum's name service later in this chapter; now, though, let's dig into an example.(((range="endofrange", startref="ix_12dapps-asciidoc1")))
+可以分散的应用程序的最后一方面是名称解析。我们将在本章后面仔细研究以太坊的名称服务;现在，让我们深入研究一个例子。
 
 [[auction_dapp_intro]]
 === A Basic DApp Example: Auction DApp
+基本DApp示例：拍卖DApp
 
 ((("Auction DApp", id="ix_12dapps-asciidoc2", range="startofrange")))((("DApps (decentralized applications)","Auction DApp example", seealso="Auction DApp", id="ix_12dapps-asciidoc3", range="startofrange")))In this section we will start building an example DApp, to explore the various decentralization tools. Our DApp will implement a decentralized auction.
+在本节中，我们将开始构建一个示例DApp，以探索各种分散工具。我们的DApp将实施分散式拍卖。
 
 ((("deed","Auction DApp and")))((("nonfungible tokens (NFTs)","Auction DApp and")))The Auction DApp allows a user to register a "deed" token, which represents some unique asset, such as a house, a car, a trademark, etc. Once a token has been registered, the ownership of the token is transferred to the Auction DApp, allowing it to be listed for sale. The Auction DApp lists each of the registered tokens, allowing other users to place bids. During each auction, users can join a chat room created specifically for that auction. Once an auction is finalized, the deed token ownership is transferred to the winner of the auction.
+拍卖DApp允许用户注册“契约”token，该token代表一些独特的资产，例如房屋，汽车，商标等。一旦token被注册，token的所有权将转移到拍卖DApp，允许它上市销售。 Auction DApp列出了每个注册的token，允许其他用户进行出价。在每次拍卖期间，用户可以加入专门为该拍卖创建的聊天室。拍卖完成后，契约token的所有权将转移给拍卖的获胜者。
 
 The overall auction process can be seen in <<auction_dapp_overview>>.
+整个拍卖过程可以在Auction DApp中看到：一个简单的拍卖DApp示例。
 
 The main components of our Auction DApp are:
+拍卖DApp的主要组成部分是：
 
 * A smart contract implementing ERC721 non-fungible "deed" tokens (pass:[<code><span class="keep-together">DeedRepository</span></code>])
+实施ERC721不可替代“契约”token的智能合约（DeedRepository）
+
 * A smart contract implementing an auction (+AuctionRepository+) to sell the deeds
+实施拍卖（AuctionRepository）以出售契约的智能合约
+
 * A web frontend using the Vue/Vuetify JavaScript framework
+使用Vue / Vuetify JavaScript框架的Web前端
+
 * The _web3.js_ library to connect to Ethereum chains (via MetaMask or other clients)
+web3.js库连接到以太坊链（通过MetaMask或其他客户端）
+
 * A Swarm client, to store resources such as images
+一个Swarm客户端，用于存储图像等资源
+
 * A Whisper client, to create per-auction chat rooms for all participants
+一个Whisper客户端，为所有参与者创建每个拍卖聊天室
 
 [[auction_dapp_overview]]
 .Auction DApp: A simple example auction DApp
+图2.拍卖DApp：一个简单的拍卖DApp示例
+
 image::images/auction_diagram.png["Auction DApp: A simple example auction DApp"]
 
 You can find the source code for the auction DApp http://bit.ly/2DcmjyA[in the book's repository].
-
+您可以在图书库中找到拍卖DApp的源代码。
 
 ==== Auction DApp: Backend Smart Contracts
+拍卖DApp：后端智能合约
 
 ((("Auction DApp","backend smart contracts", id="ix_12dapps-asciidoc4", range="startofrange")))((("smart contracts","as DApp backend", id="ix_12dapps-asciidoc5", range="startofrange")))Our Auction DApp example is supported by two smart contracts that we need to deploy on an Ethereum blockchain in order to support the application: pass:[<code><span class="keep-together">AuctionRepository</span></code>] and +DeedRepository+.
+我们的Auction DApp示例由两个智能合约支持，我们需要在以太坊区块链上部署它们以支持应用程序：AuctionRepository和DeedRepository。
 
 Let's start by looking at +DeedRepository+, shown in <<deed_repository_code>>. This contract is an ERC721-compatible non-fungible token (see <<erc721>>).
+让我们首先看看DeedRepository中显示的DeedRepository：一个用于拍卖的ERC721契约令牌。该合同是与ERC721兼容的不可互换的令牌（参见[erc721]）。
 
 [[deed_repository_code]]
 .DeedRepository.sol: An ERC721 deed token for use in an auction
+示例1. DeedRepository.sol：用于拍卖的ERC721契约令牌
+
 ====
 [source,solidity]
 ----
@@ -136,11 +201,14 @@ include::code/auction_dapp/backend/contracts/DeedRepository.sol[]
 ====
 
 As you can see, the +DeedRepository+ contract is a straightforward implementation of an ERC721-compatible token.
-
+如您所见，DeedRepository契约是ERC721兼容令牌的直接实现。
 Our Auction DApp uses the +DeedRepository+ contract to issue and track tokens for each auction. The auction itself is orchestrated by the +AuctionRepository+ contract. This contract is too long to include here in full, but <<auction_repository_code>> shows the main definition of the contract and data structures. The entire contract is available in the book's https://bit.ly/2IaOo9i[GitHub repository].
+我们的拍卖DApp使用DeedRepository合同为每次拍卖发放和跟踪令牌。拍卖本身由AuctionRepository合同编排。这个合同太长了，不能完全包含在这里，但AuctionRepository.sol：主要的Auction DApp智能合约显示了合同和数据结构的主要定义。整个合同可以在本书的GitHub存储库中找到。
 
 [[auction_repository_code]]
 .AuctionRepository.sol: The main Auction DApp smart contract
+示例2. AuctionRepository.sol：主要的Auction DApp智能合约
+
 ====
 [source,solidity]
 ----
@@ -177,6 +245,7 @@ contract AuctionRepository {
 ====
 
 The +AuctionRepository+ contract manages all auctions with the following functions:
+AuctionRepository合约使用以下功能管理所有拍卖：
 
 [source,solidity]
 ----
@@ -197,6 +266,7 @@ bidOnAuction(uint _auctionId)
 ----
 
 You can deploy these contracts to the Ethereum blockchain of your choice (e.g., Ropsten) using +truffle+ in the book's repository:
+您可以使用书籍存储库中的松露将这些合同部署到您选择的以太坊区块链中（例如，Ropsten）：
 
 ++++
 <pre data-type="programlisting">
@@ -208,20 +278,28 @@ $ <strong>truffle migrate --network ropsten</strong>
 ++++
 
 ===== DApp governance
+DApp治理
 
 If you read through the two smart contracts of the Auction DApp you will notice something important: there is no special account or role that has special privileges over the DApp. Each auction has an owner with some special capabilities, but the Auction DApp itself has no privileged user.
+如果你仔细阅读Auction DApp的两个智能合约，你会注意到一些重要的事情：没有特殊的帐户或角色对DApp有特殊的权限。每个拍卖都有一个具有一些特殊功能的所有者，但Auction DApp本身没有特权用户。
 
 This is a deliberate choice to decentralize the governance of the DApp and relinquish any control once it has been deployed. Some DApps, by comparison, have one or more privileged accounts with special capabilities, such as the ability to terminate the DApp contract, to override or change its configuration, or to "veto" certain operations. Usually, these governance functions are introduced in the DApp in order to avoid unknown problems that might arise due to a bug.
+这是分散DApp治理并在部署后放弃任何控制的有意选择。相比之下，一些DApp具有一个或多个具有特殊功能的特权帐户，例如终止DApp合同，覆盖或更改其配置或“否决”某些操作的能力。通常，这些治理功能在DApp中引入，以避免由于错误而可能出现的未知问题。
 
 The issue of governance is a particularly difficult one to solve, as it represents a double-edged sword. On the one side, privileged accounts are dangerous; if compromised, they can subvert the security of the DApp. On the other side, without any privileged account, there are no recovery options if a bug is found. We have seen both of these risks manifest in Ethereum DApps. ((("DAO (Decentralized Autonomous Organization)","reentrancy attack")))In the case of The DAO (<<real_world_example_the_dao>> and <<ethereum_fork_history>>), there were some privileged accounts called the "curators," but they were very limited in their capabilities. Those accounts were not able to override the DAO attacker's withdrawal of the funds. In a more recent case, the decentralized exchange Bancor experienced a massive theft because a privileged management account was compromised. Turns out, Bancor was not as decentralized as initially assumed.
+治理问题是一个特别难以解决的问题，因为它代表了一把双刃剑。一方面，特权账户是危险的;如果受到损害，他们可以破坏DApp的安全性。另一方面，没有任何特权帐户，如果发现错误，则没有恢复选项。我们已经看到这些风险在以太坊DApps中都有所体现。在DAO（[real_world_example_the_dao]和[ethereum_fork_history]）的情况下，有一些特权帐户称为“策展人”，但他们的能力非常有限。这些帐户无法覆盖DAO攻击者撤回资金。在最近的一个案例中，分散的交易所Bancor经历了大规模的盗窃，因为特权管理账户遭到了破坏。事实证明，Bancor没有像最初假设的那样分散。
 
 When building a DApp, you have to decide if you want to make the smart contracts truly independent, launching them and then having no control, or create privileged accounts and run the risk of those being compromised. Either choice carries risk, but in the long run, true DApps cannot have specialized access for privileged accounts&#x2014;that's not decentralized.(((range="endofrange", startref="ix_12dapps-asciidoc5")))(((range="endofrange", startref="ix_12dapps-asciidoc4")))
+在构建DApp时，您必须决定是否要使智能合约真正独立，启动它们然后无法控制，或者创建特权帐户并冒险受到攻击。这两种选择都存在风险，但从长远来看，真正的DApps无法对特权帐户进行专门访问 - 这种权限不是分散的。
 
 ==== Auction DApp: Frontend User Interface
+拍卖DApp：前端用户界面
 
 ((("Auction DApp","frontend user interface")))Once the Auction DApp's contracts are deployed, you can interact with them using your favorite JavaScript console and web3.js, or another web3 library. However, most users will need an easy-to-use interface. Our Auction DApp user interface is built using the Vue2/Vuetify JavaScript framework from Google.
+一旦部署了Auction DApp的合同，您就可以使用自己喜欢的JavaScript控制台和web3.js或其他web3库与它们进行交互。但是，大多数用户需要易于使用的界面。我们的Auction DApp用户界面是使用Google的Vue2 / Vuetify JavaScript框架构建的。
 
 You can find the user interface code in the _code/auction_dapp/frontend_ folder in https://github.com/ethereumbook/ethereumbook[the book's repository]. The directory has the following structure and contents:
+您可以在本书的存储库的code / auction_dapp / frontend文件夹中找到用户界面代码。该目录具有以下结构和内容：
 
 ----
 frontend/
@@ -261,6 +339,7 @@ frontend/
 ----
 
 Once you have deployed the contracts, edit the frontend configuration in _frontend/src/config.js_ and enter the addresses of the +DeedRepository+ and +AuctionRepository+ contracts, as deployed. The frontend application also needs access to an Ethereum node offering a JSON-RPC and WebSockets interface. Once you've configured the frontend, launch it with a web server on your local machine:
+部署合同后，编辑frontend / src / config.js中的前端配置，并在部署时输入DeedRepository和AuctionRepository合同的地址。前端应用程序还需要访问提供JSON-RPC和WebSockets接口的以太坊节点。配置完前端后，在本地计算机上使用Web服务器启动它：
 
 ++++
 <pre data-type="programlisting">
@@ -270,39 +349,55 @@ $ <strong>npm run dev</strong>
 ++++
 
 The Auction DApp frontend will launch and will be accessible via any web browser at http://localhost:8080.
+Auction DApp前端将启动，可通过http：// localhost：8080上的任何Web浏览器访问。
 
 If all goes well you should see the screen shown in <<auction_dapp_screen>>, which illustrates the Auction DApp running in a web browser.
+如果一切顺利，您应该会看到Auction DApp用户界面中显示的屏幕，其中显示了在Web浏览器中运行的Auction DApp。
 
 [[auction_dapp_screen]]
 .Auction DApp user interface
 image::images/auction_dapp_home_screen.png["Auction DApp User interface"]
+图3. Auction DApp用户界面
 
 === Further Decentralizing the Auction DApp
+进一步下放拍卖DApp
 
 ((("Auction DApp","further decentralizing of")))Our DApp is already quite decentralized, but we can improve things.
+我们的DApp已经非常分散，但我们可以改进。
 
 The +AuctionRepository+ contract operates independently of any oversight, open to anyone. Once deployed it cannot be stopped, nor can any auction be controlled. Each auction has a separate chat room that allows anyone to communicate about the auction without censorship or identification. The various auction assets, such as the description and associated image, are stored on Swarm, making them hard to censor or block.
+AuctionRepository合同独立于任何监督，对任何人开放。一旦部署，它就无法停止，也不能控制任何拍卖。每次拍卖都有一个单独的聊天室，允许任何人在没有审查或识别的情况下就拍卖进行沟通。各种拍卖资产（例如描述和相关图像）存储在Swarm上，使得它们难以进行审查或阻止。
 
 Anyone can interact with the DApp by constructing transactions manually or by running the Vue frontend on their local machine. The DApp code itself is open source and developed collaboratively on a public repository.
+任何人都可以通过手动构建事务或在本地计算机上运行Vue前端来与DApp交互。 DApp代码本身是开源的，并在公共存储库上协作开发。
 
 There are two things we can do to make this DApp decentralized and resilient:
+我们可以做两件事来使这个DApp分散和弹性：
 
 * Store all the application code on Swarm or IPFS.
 * Access the DApp by reference to a name, using the Ethereum Name Service.
+将所有应用程序代码存储在Swarm或IPFS上。
+使用以太坊名称服务通过引用名称访问DApp。
 
 We'll explore the first option in the next section, and we'll dig into the second in <<ethereum_naming_system_ens>>.
+我们将在下一节中探讨第一个选项，我们将深入研究以太坊名称服务（ENS）中的第二个选项。
 
 === Storing the Auction DApp on Swarm
+在Swarm上存储拍卖DApp
 
 ((("Auction DApp","storing on Swarm", id="ix_12dapps-asciidoc6", range="startofrange")))((("Swarm","storing Auction DApp on", id="ix_12dapps-asciidoc7", range="startofrange")))We introduced Swarm in <<swarm_sec>>, earlier in this chapter. Our Auction DApp already uses Swarm to store the icon image for each auction. This is a much more efficient solution than attempting to store data on Ethereum, which is expensive. It is also a lot more resilient than if these images were stored in a centralized service like a web server or file server.
+我们在本章前面介绍了Swarm in Swarm。我们的拍卖DApp已经使用Swarm存储每次拍卖的图标图像。这是一种比尝试在以太坊上存储数据更有效的解决方案，这是昂贵的。与将这些图像存储在Web服务器或文件服务器等集中式服务中相比，它也更具弹性。
 
 But we can take things one step further. We can store the entire frontend of the DApp itself in Swarm and run it from a Swarm node directly, instead of running a web server.
+但我们可以更进一步。我们可以将DApp本身的整个前端存储在Swarm中，并直接从Swarm节点运行它，而不是运行Web服务器。
 
 ==== Preparing Swarm
-
+准备Swarm
 ((("Swarm","installing and initializing")))To get started, you need to install Swarm and initialize your Swarm node. Swarm is part of the Ethereum Foundation's Go-Ethereum suite of tools. Refer to the instructions for installing Go-Ethereum in <<go_ethereum_geth>>, or to install a Swarm binary release, follow the instructions in the http://bit.ly/2Q75KXw[Swarm documentation].
+首先，您需要安装Swarm并初始化Swarm节点。 Swarm是以太坊基金会Go-Ethereum工具套件的一部分。请参阅[go_ethereum_geth]中安装Go-Ethereum的说明，或安装Swarm二进制版本，按照Swarm文档中的说明进行操作。
 
 Once you have installed Swarm, you can check that it is working correctly by running it with the +version+ command:
+一旦安装了Swarm，就可以通过使用version命令运行它来检查它是否正常工作：
 
 ++++
 <pre data-type="programlisting">
@@ -315,8 +410,10 @@ OS: linux
 ++++
 
 To start running Swarm, you must tell it how to connect to an instance of Geth, to access the JSON-RPC API. Get it started by following the instructions in the https://swarm-guide.readthedocs.io/en/latest/gettingstarted.html[Getting Started guide].
+要开始运行Swarm，您必须告诉它如何连接到Geth实例，以访问JSON-RPC API。按照“入门指南”中的说明开始使用。
 
 When you start Swarm, you should see something like this:
+当你启动Swarm时，你应该看到这样的东西：
 
 ----
 Maximum peer count                       ETH=25 LES=0 total=25
@@ -339,18 +436,24 @@ RLPx listener up                         self=enode://f50c8e19ff841bcd5ce7d2d...
 
 You can confirm that your Swarm node is running correctly by connecting to the local Swarm gateway web interface:
 http://localhost:8500.
+您可以通过连接到本地Swarm网关Web界面来确认您的Swarm节点是否正常运行：http：// localhost：8500。
 
 You should see a screen like the one in <<image_swarm_gateway>> and be able to query any Swarm hash or ENS name.
+您应该看到类似于localhost上的Swarm网关中的屏幕，并且能够查询任何Swarm哈希或ENS名称。
 
 [[image_swarm_gateway]]
 .Swarm gateway on localhost
 image::images/swarm-gateway.png["Swarm gateway on localhost"]
+图4. localhost上的Swarm网关
 
 ==== Uploading Files to Swarm
+将文件上传到Swarm
 
 ((("Swarm","uploading files to", id="ix_12dapps-asciidoc8", range="startofrange")))Once you have your local Swarm node and gateway running, you can upload to Swarm and the files will be accessible on any Swarm node, simply by reference to the file hash.
+一旦你的本地Swarm节点和网关运行，你就可以上传到Swarm，只需参考文件哈希就可以在任何Swarm节点上访问这些文件。
 
 Let's test this by uploading a file:
+让我们通过上传文件来测试：
 
 ++++
 <pre data-type="programlisting">
@@ -360,10 +463,13 @@ ec13042c83ffc2fb5cb0aa8c53f770d36c9b3b35d0468a0c0a77c97016bb8d7c
 ++++
 
 Swarm has uploaded the _README.md_ file and returned a hash that you can use to access the file from any Swarm node. For example, you could use the https://bit.ly/2znWUP9[public Swarm gateway].
+Swarm已上传README.md文件并返回一个哈希，您可以使用该哈希从任何Swarm节点访问该文件。例如，您可以使用公共Swarm网关。
 
 While uploading one file is relatively straightforward, it is a bit more complex to upload an entire DApp frontend. That's because the various DApp resources (HTML, CSS, JavaScript, libraries, etc.) have embedded references to each other. Normally, a web server translates URLs to local files and serves the correct resources. We can achieve the same for Swarm by packaging our DApp.
+虽然上传一个文件相对简单，但上传整个DApp前端会有点复杂。这是因为各种DApp资源（HTML，CSS，JavaScript，库等）都嵌入了彼此的引用。通常，Web服务器将URL转换为本地文件并提供正确的资源。我们可以通过打包我们的DApp来实现Swarm的相同功能。
 
 In the Auction DApp, there's a script for packaging all the resources:
+在拍卖DApp中，有一个用于打包所有资源的脚本：
 
 ++++
 <pre data-type="programlisting">
@@ -392,6 +498,7 @@ Build complete.
 ++++
 
 The result of this command will be a new directory, _code/auction_dapp/frontend/dist_, that contains the entire Auction DApp frontend, packed together:
+这个命令的结果将是一个新目录，代码/ auction_dapp / frontend / dist，它包含整个Auction DApp前端，打包在一起：
 
 ----
 dist/
@@ -411,6 +518,7 @@ dist/
 ----
 
 Now you can upload the entire DApp to Swarm, by using the +up+ command and the +--recursive+ option. Here, we also tell Swarm that +index.html+ is the +defaultpath+ for loading this DApp:
+现在，您可以使用up命令和--recursive选项将整个DApp上传到Swarm。在这里，我们还告诉Swarm index.html是加载此DApp的默认路径：
 
 ++++
 <pre data-type="programlisting">
@@ -422,6 +530,7 @@ ab164cf37dc10647e43a233486cdeffa8334b026e32a480dd9cbd020c12d4581
 ++++
 
 Now, our entire Auction DApp is hosted on Swarm and accessible by the Swarm URL:(((range="endofrange", startref="ix_12dapps-asciidoc8")))
+现在，我们的整个Auction DApp都托管在Swarm上，并可通过Swarm URL访问：BZZ：// ab164cf37dc10647e43a233486cdeffa8334b026e32a480dd9cbd020c12d4581
 
 ++++
 <ul class="simplelist">
@@ -430,55 +539,80 @@ Now, our entire Auction DApp is hosted on Swarm and accessible by the Swarm URL:
 ++++
 
 We've made some progress in decentralizing our DApp, but we've made it harder to use. A URL like that is much less user-friendly than a nice name like __auction_dapp.com__. Are we forced to sacrifice usability in order to gain decentralization? Not necessarily. In the next section we will examine Ethereum's name service, which allows us to use easy-to-read names but still preserves the decentralized nature of our application.(((range="endofrange", startref="ix_12dapps-asciidoc7")))(((range="endofrange", startref="ix_12dapps-asciidoc6")))
+我们在分散DApp方面取得了一些进展，但我们使用起来更加困难。像这样的URL比像auction_dapp.com这样漂亮的名字更不方便用户使用。为了获得权力下放，我们是否被迫牺牲可用性？不必要。在下一节中，我们将研究以太坊的名称服务，它允许我们使用易于阅读的名称，但仍然保留了我们应用程序的分散性。
 
 [[ethereum_naming_system_ens]]
 === The Ethereum Name Service (ENS)
+以太坊名称服务（ENS）
 
 ((("Auction DApp","ENS and", id="ix_12dapps-asciidoc9", range="startofrange")))((("ENS (Ethereum Name Service)", id="ix_12dapps-asciidoc10", range="startofrange")))((("ENS (Ethereum Name Service)","DApps and", id="ix_12dapps-asciidoc11", range="startofrange")))You can design the best smart contract in the world, but if you don't provide a good interface for users, they won't be able to access it.
+您可以设计世界上最好的智能合约，但如果您没有为用户提供良好的界面，他们将无法访问它。
 
 On the traditional internet, the Domain Name System (DNS) allows us to use human-readable names in the browser while resolving those names to IP addresses or other identifiers behind the scenes. On the Ethereum blockchain, the _Ethereum Naming System_ (ENS) solves the same problem, but in a decentralized manner.
+在传统的互联网上，域名系统（DNS）允许我们在浏览器中使用人类可读的名称，同时将这些名称解析为IP地址或幕后的其他标识符。在以太坊区块链上，以太坊命名系统（ENS）以分散的方式解决了同样的问题。
 
 For example, the Ethereum Foundation donation address is +0xfB6916095ca1df60&thinsp;bB79Ce92cE3Ea74c37c5d359+; in a wallet that supports ENS, it's simply +ethereum.eth+.
+例如，以太坊基金会捐赠地址为0xfB6916095ca1df60＆thinsp; bB79Ce92cE3Ea74c37c5d359;在支持ENS的钱包中，它只是以太坊.eth。
 
 ENS is more than a smart contract; it's a fundamental DApp itself, offering a decentralized name service. Furthermore, ENS is supported by a number of DApps for registration, management, and auctions of registered names. ENS demonstrates how DApps can work together: it's DApp built to serve other DApps, supported by an ecosystem of DApps, embedded in other DApps, and so on.
+ENS不仅仅是一份智能合约;它是DApp的基础，提供分散的名称服务。此外，ENS由许多DApps支持，用于注册，管理和注册名称的拍卖。 ENS演示了DApps如何协同工作：它是为其他DApp服务的DApp，由DApps生态系统支持，嵌入在其他DApp中，等等。
 
 In this section we will look at how ENS works. We'll demonstrate how you can set up your own name and link it to a wallet or Ethereum address, how you can embed ENS in another DApp, and how you can use ENS to name your DApp resources to make them easier to use.
+在本节中，我们将了解ENS的工作原理。我们将演示如何设置自己的名称并将其链接到钱包或以太坊地址，如何将ENS嵌入到另一个DApp中，以及如何使用ENS命名DApp资源以使其更易于使用。
 
 ==== History of Ethereum Name Services
+以太坊名称服务的历史
 
 ((("ENS (Ethereum Name Service)","history of")))Name registration was the first noncurrency application of blockchains, pioneered by Namecoin. The Ethereum http://bit.ly/2Of1gfZ[White Paper] gave a two-line Namecoin-like registration system as one of its example applications.
+名称注册是区块链的第一个非货币应用程序，由Namecoin开创。以太坊白皮书给出了一个两行的Namecoin注册系统作为其示例应用程序之一。
 
 Early releases of Geth and the C++ Ethereum client had a built-in +namereg+ contract (not used any more), and many proposals and ERCs for name services were made, but it was only when Nick Johnson started working for the Ethereum Foundation in 2016 and took the project under his wing that serious work on a registrar started.
+Geth和C ++以太网客户端的早期版本有一个内置的namereg合约（不再使用），并且提供了许多用于名称服务的提议和ERC，但只有当Nick Johnson在2016年开始为以太坊基金会工作时才在他的支持下，该项目开始了对注册商的认真工作。
 
 ENS was launched on Star Wars Day, May 4, 2017 (after a failed attempt to launch it on Pi Day, March 15).
+ENS于2017年5月4日星球大战日发布（在3月15日Pi日试图推出之后失败）。
 
 ==== The ENS Specification
+ENS规范
 
 ((("ENS (Ethereum Name Service)","design of", id="ix_12dapps-asciidoc12", range="startofrange")))ENS is ((("ENS (Ethereum Name Service)","specification")))specified mainly in three Ethereum Improvement Proposals: EIP-137, which specifies the basic functions of ENS; EIP-162, which describes the auction system for the +.eth+ root; and EIP-181, which specifies reverse registration of addresses.
+ENS主要在三个以太坊改进提案中指定：EIP-137，其规定了ENS的基本功能; EIP-162，描述了.eth根的拍卖系统;和EIP-181，它规定了地址的反向登记。
 
 ENS follows a "sandwich" design philosophy: a very simple layer on the bottom, followed by layers of more complex but replaceable code, with a very simple top layer that keeps all the funds in separate accounts.
+ENS遵循“三明治”设计理念：底部是一个非常简单的层，其次是更复杂但可替换的代码层，顶层非常简单，可以将所有资金保存在不同的帐户中。
 
 ==== Bottom Layer: Name Owners and Resolvers
+底层：名称所有者和解析器
 
 ((("ENS (Ethereum Name Service)","bottom layer: name owners and resolvers", id="ix_12dapps-asciidoc13", range="startofrange")))The ENS operates on "nodes" instead of human-readable names: a human-readable name is converted to a node using the "Namehash" algorithm.
+ENS操作“节点”而不是人类可读的名称：使用“Namehash”算法将人类可读的名称转换为节点。
 
 The base layer of ENS is a cleverly simple contract (less than 50 lines of code) defined by ERC137 that allows only nodes' owners to set information about their names and to create subnodes (the ENS equivalent of DNS subdomains).
+ENS的基础层是ERC137定义的一个非常简单的合同（少于50行代码），它只允许节点的所有者设置有关其名称的信息并创建子节点（ENS等效于DNS子域）。
 
 The only functions on the base layer are those that enable a node owner to set information about their own node (specifically the resolver, time to live, or transferring the ownership) and to create owners of new subnodes.
+基础层上的唯一功能是使节点所有者能够设置有关其自身节点的信息（特别是解析器，生存时间或转移所有权）以及创建新子节点的所有者。
 
 ===== The Namehash algorithm
+Namehash算法
 
 ((("ENS (Ethereum Name Service)","Namehash algorithm")))((("Namehash algorithm")))Namehash is a recursive algorithm that can convert any name into a hash that identifies the name.
+Namehash是一种递归算法，可以将任何名称转换为标识名称的哈希。
 
 "Recursive" means that we solve the problem by solving a subproblem that is a smaller problem of the same type, and then use the solution to the subproblem to solve the original problem.
+“递归”意味着我们通过解决同一类型的较小问题的子问题来解决问题，然后使用子问题的解来解决原始问题。
 
 Namehash recursively hashes components of the name, producing a unique, fixed-length string (or &#x201c;node&#x201d;) for any valid input domain. For example, the Namehash node of +subdomain.example.eth+ is `keccak('<example.eth>' node) + keccak('<subdomain>')`. The subproblem we must solve is to compute the node for +example.eth+, which is `keccak('<.eth>' node) + keccak('<example>')`.  To begin, we must compute the node for +eth+, which is `keccak(<root node>) + keccak('<eth>')`.
+Namehash以递归方式散列名称的组件，为任何有效的输入域生成唯一的固定长度字符串（或“节点”）。例如，subdomain.example.eth的Namehash节点是keccak（'<example.eth>'node）+ keccak（'<subdomain>'）。我们必须解决的子问题是计算example.eth的节点，即keccak（'<。eth>'节点）+ keccak（'<example>'）。首先，我们必须计算eth的节点，即keccak（<root node>）+ keccak（'<eth>'）。
 
 The root node is what we call the "base case" of our recursion, and we obviously can't define it recursively, or the algorithm will never terminate! The root node is defined as `0x0000000000000000000000000000000000000000000000000000000000000000` (32 zero bytes).
+根节点就是我们称之为递归的“基本情况”，我们显然无法递归地定义它，或者算法永远不会终止！根节点定义为`0x0000000000000000000000000000000000000000000000000000000000000000` (32 zero bytes).
 
 Putting this all together, the node of +subdomain.example.eth+ is therefore pass:[<code><span class="keep-together">keccak</span>(keccak(keccak(0x0...0 + keccak('eth')) + keccak('example')) + keccak('subdomain'))</code>].
+把这些都放在一起，subdomain.example.eth的节点因此是keccak（keccak（0xcc ... 0 + keccak（'eth'））+ keccak（'example'））+ keccak（'subdomain'）） 。
 
 Generalizing, we can define the Namehash function as follows (the base case for the root node, or empty name, followed by the recursive step):
+通用化，我们可以按如下方式定义Namehash函数（根节点的基本情况，或空名称，后跟递归步骤）：
 
 ....
 namehash([]) = 0x0000000000000000000000000000000000000000000000000000000000000000
@@ -486,6 +620,7 @@ namehash([label, ...]) = keccak256(namehash(...) + keccak256(label))
 ....
 
 In Python this becomes:
+在Python中，这变为：
 
 ....
 def namehash(name):
@@ -497,6 +632,7 @@ def namehash(name):
 ....
 
 Thus, +mastering-ethereum.eth+ will be processed as follows:
+因此，mastering-ethereum.eth将按如下方式处理：
 
 ....
 namehash('mastering-ethereum.eth')
@@ -506,187 +642,258 @@ namehash('mastering-ethereum.eth')
 ....
 
 Of course, subdomains can themselves have subdomains: there could be a +sub.subdomain.example.eth+ after +subdomain.example.eth+, then a +sub.sub.subdomain.example.eth+, and so on. To avoid expensive recomputation, since Namehash depends only on the name itself, the node for a given name can be precomputed and inserted into a contract, removing the need for string manipulation and permitting immediate lookup of ENS records regardless of the number of components in the raw name.
+当然，子域本身可以有子域：subdomain.example.eth之后可以有sub.subdomain.example.eth，然后是sub.sub.subdomain.example.eth，依此类推。为了避免昂贵的重新计算，由于Namehash仅依赖于名称本身，因此可以预先计算给定名称的节点并将其插入到合同中，从而无需进行字符串操作并允许立即查找ENS记录，而不管其中的组件数量是多少。原始名称。
 
 ===== How to choose a valid name
+如何选择有效的名称
 ((("ENS (Ethereum Name Service)","choosing a valid name")))Names consist of a series of dot-separated labels. Although upper- and lowercase letters are allowed, all labels should follow a UTS &#x23;46 normalization process that case-folds labels before hashing them, so names with different case but identical spelling will end up with the same Namehash.
+名称由一系列点分隔标签组成。虽然允许使用大写和小写字母，但所有标签都应遵循UTS＃46规范化过程，在对其进行散列之前对其进行大小写折叠，因此具有不同大小但拼写相同的名称最终将使用相同的Namehash。
 
 You could use labels and domains of any length, but for the sake of compatibility with legacy DNS, the following rules are recommended:
+您可以使用任何长度的标签和域，但为了与传统DNS兼容，建议使用以下规则：
 
 * Labels should be no more than 64 characters each.
 * Complete ENS names should be no more than 255 characters.
 * Labels should not start or end with hyphens, or start with digits.
+标签每个不应超过64个字符。
+完整的ENS名称不应超过255个字符。
+标签不应以连字符开头或结尾，也不应以数字开头。
 
 ===== Root node ownership
+根节点所有权
 
 ((("ENS (Ethereum Name Service)","root node ownership")))One of the results of this hierarchical system is that it relies on the owners of the root node, who are able to create top-level domains (TLDs).
+这种分层系统的结果之一是它依赖于根节点的所有者，他们能够创建顶级域（TLD）。
 
 While the eventual goal is to adopt a decentralized decision-making process for new TLDs, at the time of writing the root node is controlled by a 4-of-7 multisig, held by people in different countries (built as a reflection of the 7 keyholders of the DNS system).
 As a result, a majority of at least 4 of the 7 keyholders is required to effect any change.
+虽然最终的目标是为新TLD采用分散的决策流程，但在撰写本文时，根节点由7个4的多重控制控制，由不同国家的人们持有（构建为7的反映） DNS系统的关键人员）。因此，7个关键持有人中至少有4个人中的大多数都需要进行任何变更。
 
 Currently the purpose and goal of these keyholders is to work in consensus with the community to:
+目前，这些关键人物的目的和目标是与社区达成共识：
 
 * Migrate and upgrade the temporary ownership of the +.eth+ TLD to a more permanent contract once the system is evaluated.
 * Allow adding new TLDs, if the community agrees they are needed.
 * Migrate the ownership of the root multisig to a more decentralized contract, when such a system is agreed upon, tested, and implemented.
 * Serve as a last-resort way to deal with any bugs or vulnerabilities in the top-level registries.
+在评估系统后，将.eth TLD的临时所有权迁移并升级为更长久的合同。
+如果社群同意需要，则允许添加新TLD。
+在同意，测试和实施此类系统时，将根multisig的所有权迁移到更分散的合同。
+作为处理顶级注册表中的任何错误或漏洞的最后手段。
 
 ===== Resolvers
+解析器
 
 ((("ENS (Ethereum Name Service)","resolvers")))((("resolver contracts")))The basic ENS contract can't add metadata to names; that is the job of so-called "resolver contracts." These are user-created contracts that can answer questions about the name, such as what Swarm address is associated with the app, what address receives payments to the app (in ether or tokens), or what the hash of the app is (to verify its integrity).(((range="endofrange", startref="ix_12dapps-asciidoc13")))
+基本的ENS合同无法向名称添加元数据;这就是所谓的“解析合同”的工作。这些是用户创建的合同，可以回答有关名称的问题，例如Swarm地址与应用程序关联的内容，接收应用程序付款的地址（以太币或代币），或应用程序的哈希值（验证）它的完整性）。
 
 ==== Middle Layer: The .eth Nodes
+中间层：.eth节点
 
 (((".eth nodes")))((("ENS (Ethereum Name Service)","middle layer: .eth nodes")))((("eth nodes")))At the time of writing, the only top-level domain that is uniquely registrable in a smart contract is +.eth+.
+在撰写本文时，唯一可以在智能合约中注册的顶级域名是.eth。
 
 [NOTE]
+注意
+
 ====
 There's work underway on enabling traditional DNS domain owners to claim ENS ownership.
 While in theory this could work for +.com+, the only domain that this has been implemented for so far is http://bit.ly/2SwUuFC[+.xyz+, and only on the Ropsten testnet].
+目前正在努力使传统的DNS域名所有者能够获得ENS所有权。虽然理论上这可能适用于.com，但到目前为止，唯一实现此目的的域是.xyz，并且仅在Ropsten testnet上。
 ====
 
 +.eth+ domains are distributed via an auction system. There is no reserved list or priority, and the only way to acquire a name is to use the system. The auction system is a complex piece of code (over 500 lines); most of the early development efforts (and bugs!) in ENS were in this part of the system. However, it's also replaceable and upgradeable, without risk to the funds—more on that later.
+.eth域名通过拍卖系统分发。没有保留列表或优先级，获取名称的唯一方法是使用系统。拍卖系统是一段复杂的代码（超过500行）; ENS中的大部分早期开发工作（和错误！）都在系统的这一部分。然而，它也是可替换和可升级的，没有资金的风险 - 更多的是后来。
 
 [[vickrey_auction]]
 ===== Vickrey auctions
+Vickrey拍卖
 
 ((("ENS (Ethereum Name Service)","Vickrey auctions")))((("Vickrey auctions")))Names are distributed via a modified Vickrey auction. In a traditional Vickrey auction, every bidder submits a sealed bid, and all of them are revealed simultaneously, at which point the highest bidder wins the auction but only pays the second-highest bid. Therefore bidders are incentivized not to bid less than the true value of the name to them, since bidding their true value increases the chance they will win but does not affect the price they will eventually pay.
+名称通过修改后的Vickrey拍卖分发。在传统的Vickrey拍卖中，每个投标人都提交密封投标，并且所有投标人同时被公开，此时最高出价者赢得拍卖，但只支付第二高的出价。因此，竞标者被激励不要向他们出价低于名称的真实价值，因为竞标他们的真实价值会增加他们赢得的机会，但不会影响他们最终支付的价格。
 
 On a blockchain, some changes are required:
+在区块链上，需要进行一些更改：
 
 * To ensure bidders don't submit bids they have no intention of paying, they must lock up a value equal to or higher than their bid beforehand, to guarantee the bid is valid.
 * Because you can't hide secrets on a blockchain, bidders must execute at least two transactions (a commit–reveal process), in order to hide the original value and name they bid on.
 * Since you can't reveal all bids simultaneously in a decentralized system, bidders must reveal their own bids themselves; if they don't, they forfeit their locked-up funds. Without this forfeit, one could make many bids and choose to reveal only one or two, turning a sealed-bid auction into a traditional increasing price pass:[<span class="keep-together">auction</span>].
+为确保投标人不提交投标，他们无意支付，他们必须事先锁定等于或高于其投标价值，以保证投标有效。
+由于您无法隐藏区块链上的机密信息，因此投标人必须至少执行两项交易（提交揭示流程），以隐藏其出价的原始值和名称。
+由于您无法在分散系统中同时显示所有出价，因此投标人必须自行展示自己的出价;如果他们不这样做，他们就会丧失锁定的资金。如果没有这种没收，人们可以做出很多出价，并选择只披露一两个，将密封拍卖变成传统的增加价格拍卖。
 
 Therefore, the auction is a four-step process:
+因此，拍卖分为四个步骤：
 
 1. Start the auction. This is required to broadcast the intent to register a name.
 This creates all auction deadlines. The names are hashed, so that only those who have the name in their dictionary will know which auction was opened. This allows some privacy, which is useful if you are creating a new project and don't want to share details about it.
 You can open multiple dummy auctions at the same time, so if someone is following you they cannot simply bid on all auctions you open.
+开始拍卖。这是广播注册名称的意图所必需的。这将创建所有拍卖截止日期。这些名称是经过哈希处理的，因此只有在字典中具有该名称的人才能知道哪个拍卖被打开了。这允许一些隐私，这在您创建新项目并且不想共享其详细信息时非常有用。您可以同时打开多个虚拟拍卖，因此如果有人关注您，他们就不能简单地对您打开的所有拍卖进行出价。
 
 1. Make a sealed bid. You must do this before the bidding deadline, by tying a given amount of ether to the hash of a secret message (containing, among other things, the hash of the name, the actual amount of the bid, and a salt).
 You can lock up more ether than you are actually bidding in order to mask your true valuation.
+密封投标。您必须在投标截止日期之前执行此操作，方法是将一定数量的以太币与秘密消息的哈希值相关联（其中包括名称的哈希值，实际的出价金额和盐值）。您可以锁定比您实际出价更多的以太，以掩盖您的真实估值。
 
 1. Reveal the bid. During the reveal period, you must make a transaction that reveals the bid, which will then calculate the highest bid and the second-highest bid and send ether back to unsuccessful bidders.
 Every time the bid is revealed the current winner is recalculated; therefore, the last one to be set before the revealing deadline expires becomes the overall winner.
+显示出价。在显示期间，您必须进行一次显示出价的交易，然后计算最高出价和第二高出价，并将以太送回不成功的出价人。每次出价都会重新计算当前的赢家;因此，在揭示截止日期到期之前设置的最后一个成为总冠军。
 
 1. Clean up after. If you are the winner, you can finalize the auction in order to get back the difference between your bid and the second-highest bid.
 If you forgot to reveal you can make a late reveal and recover a little of your bid.
+之后清理。如果您是赢家，则可以最终确定竞价，以便取消您的出价与第二高出价之间的差额。如果您忘记透露，您可以进行延迟披露并收回一些出价。
 
 ==== Top Layer: The Deeds
+顶层：契约
 
 ((("deed","as ENS top layer")))((("ENS (Ethereum Name Service)","top layer: deeds")))The top layer of ENS is yet another super-simple contract with a single purpose: to hold the funds.
+ENS的最高层是另一个超级简单的合同，只有一个目的：持有资金。
 
 When you win a name, the funds are not actually sent anywhere, but are just locked up for the period you want to hold the name (at least a year).
 This works like a guaranteed buyback: if the owner does not want the name any more they can sell it back to the system and recover their ether (so the cost of holding the name is the opportunity cost of doing something with a return greater than zero).
+当您赢得一个名字时，资金实际上并没有被发送到任何地方，而是在您想要保留名称的期间（至少一年）被锁定。这有点像保证回购：如果所有者不再需要该名称，他们可以将其卖回系统并恢复他们的以太（因此持有该名称的成本是做出回报大于零的事情的机会成本） ）。
 
 Of course, having a single contract hold millions of dollars in ether has proven to be very risky, so instead ENS creates a deed contract for each new name.
 The deed contract is very simple (about 50 lines of code), and it only allows the funds to be transferred back to a single account (the deed owner) and to be called by a single entity (the registrar contract).
 This approach drastically reduces the attack surface where bugs can put the funds at risk.(((range="endofrange", startref="ix_12dapps-asciidoc12")))
+当然，单一合同持有数百万美元的以太币已被证明是非常危险的，因此ENS为每个新名称创建契约。契约合约非常简单（大约50行代码），它只允许将资金转回单个账户（契约所有者）并由单个实体（注册商合同）调用。这种方法大大减少了攻击面，因为错误可能会使资金面临风险。
 
 ==== Registering a Name
+注册名称
 
 ((("ENS (Ethereum Name Service)","registering a name", id="ix_12dapps-asciidoc14", range="startofrange")))((("registering a name", id="ix_12dapps-asciidoc15", range="startofrange")))Registering a name in ENS is a four-step process, as we saw in  <<vickrey_auction>>. First we place a bid for any available name, then we reveal our bid after 48 hours to secure the name. <<ens_registration_timeline>> is a diagram showing the timeline of registration.
+正如我们在Vickrey拍卖会上看到的那样，在ENS中注册名称是一个分为四个步骤的过程。首先我们对任何可用的名称进行出价，然后我们会在48小时后显示我们的出价以确保名称。 ENS注册时间表是显示注册时间表的图表。
 
 Let's register our first name!
+让我们注册我们的名字！
 
 We will use one of several available user-friendly interfaces to search for available names, place a bid on the name +ethereumbook.eth+, reveal the bid, and secure the name.
+我们将使用几个可用的用户友好界面中的一个来搜索可用的名称，对名称ethereumbook.eth进行出价，显示出价并保护名称。
 
 There are a number of web-based interfaces to ENS that allow us to interact with the ENS DApp. For this example, we will use the https://mycrypto.com/[MyCrypto interface], in conjunction with MetaMask as our wallet.
+ENS有许多基于Web的界面，允许我们与ENS DApp进行交互。对于这个例子，我们将使用MyCrypto接口和MetaMask作为我们的钱包。
 
 [[ens_registration_timeline]]
 .ENS timeline for registration
 image::images/ens-flow.png[]
-
-
+图5.注册的ENS时间表
 
 First, we need to make sure the name we want is available. While writing this book, we really wanted to register the name +mastering.eth+, but alas, <<ens-name-search>> revealed it was already taken! Because ENS registrations only last one year, it might become possible to secure that name in the future. In the meantime, let's search for +ethereumbook.eth+ (<<ens-name-search>>).
+首先，我们需要确保我们想要的名称可用。在写这本书时，我们真的想注册名称mastering.eth，但是，在MyCrypto.com上搜索ENS名称显示它已经被采用了！由于ENS注册仅持续一年，因此将来可能可以保护该名称。在此期间，让我们搜索ethereumbook.eth（在MyCrypto.com上搜索ENS名称）。
 
 [[ens-name-search]]
 .Searching for ENS names on MyCrypto.com
 image::images/ens-checkname.png["Searching for ENS names on MyCrypto.com"]
+图6.在MyCrypto.com上搜索ENS名称
 
 Great! The name is available. In order to register it, we need to move forward with <<ens-auction>>. Let's unlock MetaMask and start an auction for +ethereumbook.eth+.
-
+太棒了！这个名字可用。为了注册它，我们需要继续开始拍卖ENS名称。让我们解锁MetaMask并开始为ethereumbook.eth拍卖。
 
 [[ens-auction]]
 .Starting an auction for an ENS name
 image::images/ens-auction.png["Starting an auction for an ENS name"]
-
+图7.开始ENS名称的拍卖
 
 Let's make our bid. In order to do that we need to follow the steps in <<ens-bid>>.
-
+让我们出价。为此，我们需要按照放置ENS名称的出价中的步骤进行操作。
 
 [[ens-bid]]
 .Placing a bid for an ENS name
 image::images/ens-bid.png["Placing a bid for an ENS name"]
+图8.为ENS名称设置出价
 
 [WARNING]
+警告
 ====
 As mentioned in <<vickrey_auction>>, you must reveal your bid within 48 hours after the auction is complete, or you _lose the funds in your bid_. Did we forget to do this and lose 0.01 ETH ourselves? You bet we did.
+如Vickrey拍卖中所述，您必须在拍卖完成后48小时内公布您的出价，否则您将失去投标中的资金。我们忘记这样做并且自己减掉0.01 ETH吗？你打赌我们做到了。
 
 Take a screenshot, save your secret phrase (as a backup for your bid), and add a reminder in your calendar for the reveal date and time, so you don't forget and lose your funds.
+截取屏幕截图，保存您的密码（作为出价的备份），并在日历中添加提醒以显示日期和时间，这样您就不会忘记并丢失资金。
 ====
 
 Finally, we confirm the transaction by clicking the big green submit button shown in <<ens-metamask-bid>>.
+最后，我们通过点击包含您的出价的MetaMask交易中显示的绿色提交按钮来确认交易。
 
 [[ens-metamask-bid]]
 .MetaMask transaction containing your bid
 image::images/ens-metamask-bid.png["MetaMask transaction containing your bid"]
+图9.包含出价的MetaMask交易
 
 If all goes well, after submitting a transaction in this way you can return and reveal the bid in 48 hours, and the name you requested will be registered to your Ethereum address.(((range="endofrange", startref="ix_12dapps-asciidoc15")))(((range="endofrange", startref="ix_12dapps-asciidoc14")))
+如果一切顺利，在以这种方式提交交易后，您可以在48小时内返回并显示出价，并且您请求的名称将被注册到您的以太坊地址。
 
 ==== Managing Your ENS Name
+管理您的ENS名称
 
 ((("ENS (Ethereum Name Service)","managing your ENS name")))Once you have registered an ENS name, you can manage it using another user-friendly interface: https://manager.ens.domains/[ENS Manager].
-
+注册ENS名称后，您可以使用其他用户友好界面进行管理：ENS Manager。
 
 Once there, enter the name you want to manage in the search box (see <<ens-manager>>). You need to have your Ethereum wallet  (e.g., MetaMask) unlocked, so that the ENS Manager DApp can manage the name on your behalf.
+在那里，在搜索框中输入您要管理的名称（请参阅ENS Manager Web界面）。您需要解锁您的以太坊钱包（例如，MetaMask），以便ENS经理DApp可以代表您管理该名称。
 
 [[ens-manager]]
 .The ENS Manager web interface
 image::images/ens-manager.png["The ENS Manager web interface"]
+图10. ENS Manager Web界面
 
 From this interface, we can create subdomains, set a resolver contract (more on that later), and connect each name to the appropriate resource, such as the Swarm address of a DApp frontend.
+从这个界面，我们可以创建子域，设置一个解析器契约（稍后会详细介绍），并将每个名称连接到适当的资源，例如DApp前端的Swarm地址。
 
 ===== Creating an ENS subdomain
+创建ENS子域
 
 First, let's create a subdomain for our example Auction DApp (see <<ens-manager-add-subdomain>>). We will name the subdomain +auction+, so the fully qualified name will be +auction.ethereumbook.eth+.
+首先，让我们为示例Auction DApp创建一个子域（请参阅添加子域auction.ethereumbook.eth）。我们将命名子域名拍卖，因此完全限定名称将为auction.ethereumbook.eth。
 
 [[ens-manager-add-subdomain]]
 .Adding the subdomain auction.ethereumbook.eth
 image::images/ens_manager_add_subdomain.png["Adding the subdomain auction.ethereumbook.eth"]
+图11.添加子域auction.ethereumbook.eth
 
 Once we've created the subdomain, we can enter +auction.ethereumbook.eth+ in the search box and manage it, just as we managed the domain +ethereumbook.eth+ pass:[<span class="keep-together">previously</span>].
+一旦我们创建了子域，我们就可以在搜索框中输入auction.ethereumbook.eth并对其进行管理，就像我们之前管理域ethereumbook.eth一样。
 
 [role="pagebreak-before"]
 ==== ENS Resolvers
+ENS解析器
 
 ((("ENS (Ethereum Name Service)","resolving a name", id="ix_12dapps-asciidoc16", range="startofrange")))In ENS, resolving a name is a two-step process:
+在ENS中，解析名称的过程分为两步：
 
 1. The ENS registry is called with the name to resolve after hashing it.
 If the record exists, the registry returns the address of its resolver.
+调用ENS注册表，并在对其进行哈希处理后解析该名称。如果记录存在，注册表将返回其解析程序的地址。
 
 2. The resolver is called, using the method appropriate to the resource being requested. The resolver returns the desired result.
+使用适合所请求资源的方法调用解析器。解析器返回所需的结果。
 
 This two-step process has several benefits. Separating the functionality of resolvers from the naming system itself gives us a lot more flexibility. The owners of names can use custom resolvers to resolve any type or resource, extending the functionality of ENS. For example, if in the future you wanted to link a geolocation resource (longitude/lattitude) to an ENS name, you could create a new resolver that answers a pass:[<span class="keep-together"><code>geolocation</code></span>] query. Who knows what applications might be useful in the future? With custom resolvers, the only limitation is your imagination.
+这个两步过程有几个好处。将解析器的功能与命名系统本身分开，为我们提供了更大的灵活性。名称所有者可以使用自定义解析器来解析任何类型或资源，从而扩展了ENS的功能。例如，如果将来您想要将地理位置资源（经度/纬度）链接到ENS名称，则可以创建一个新的解析器来回答地理位置查询。谁知道将来哪些应用可能有用？使用自定义解析器，唯一的限制是您的想象力。
 
 For convenience, there is a default public resolver that can resolve a variety of resources, including the address (for wallets or contracts) and content (a Swarm hash for DApps or contract source code).
+为方便起见，有一个默认的公共解析器可以解析各种资源，包括地址（用于钱包或合同）和内容（用于DApps的Swarm哈希或合同源代码）。
 
 Since we want to link our Auction DApp to a Swarm hash, we can use the public resolver, which supports content resolution, as shown in <<ens-manager-set-default-resolver>>; we don't need to code or deploy a custom resolver.
+由于我们想要将Auction DApp链接到Swarm哈希，我们可以使用支持内容解析的公共解析器，如设置auction.ethereumbook.eth的默认公共解析器中所示;我们不需要编写或部署自定义解析程序。
 
 [[ens-manager-set-default-resolver]]
 .Setting the default public resolver for auction.ethereumbook.eth
 image::images/ens-manager-set-default-resolver.png["Set the default public resolver for auction.ethereumbook.eth"]
+图12.为auction.ethereumbook.eth设置默认的公共解析器
 
 ==== Resolving a Name to a Swarm Hash (Content)
+将名称解析为Swash哈希（内容）
 
 ((("ENS (Ethereum Name Service)","resolving a name to a Swarm hash")))((("Swarm","resolving a name to a Swarm hash")))((("Swarm hash, resolving a name to")))Once the resolver for +auction.ethereumbook.eth+ is set to be the public resolver, we can set it to return the Swarm hash as the content of our name (see <<ens-set-content>>).
+将auction.ethereumbook.eth的解析器设置为公共解析器后，我们可以将其设置为返回Swarm哈希作为我们名称的内容（请参阅设置'content'以返回auction.ethereumbook.eth）。
 
 [[ens-set-content]]
 .Setting the 'content' to return for auction.ethereumbook.eth
 image::images/ens-manager-set-content.png["Set the 'content' return for auction.ethereumbook.eth"]
+图13.设置'content'以返回auction.ethereumbook.eth
 
 After waiting a short time for our transaction to be confirmed, we should be able to resolve the name correctly. Before setting a name, our Auction DApp could be found on a Swarm gateway by its hash:
+在等待我们的交易确认的短时间后，我们应该能够正确地解析名称。在设置名称之前，我们的Auction DApp可以通过其哈希在Swarm网关上找到：
 
 ++++
 <ul class="simplelist">
@@ -695,6 +902,8 @@ After waiting a short time for our transaction to be confirmed, we should be abl
 ++++
 
 or by searching in a DApp browser or Swarm gateway for the Swarm URL:
+https://swarm-gateways.net/bzz:/ab164cf37dc10647e43a233486cdeffa8334b026e32a480dd9cbd020c12d4581
+或者通过在DApp浏览器或Swarm网关中搜索Swarm URL：
 
 ++++
 <ul class="simplelist">
@@ -704,6 +913,8 @@ or by searching in a DApp browser or Swarm gateway for the Swarm URL:
 
 [role="pagebreak-before"]
 Now that we have attached it to a name, it is much easier:
+BZZ：// ab164cf37dc10647e43a233486cdeffa8334b026e32a480dd9cbd020c12d4581
+现在我们将它附加到一个名称，它更容易：
 
 ++++
 <ul class="simplelist">
@@ -712,21 +923,31 @@ Now that we have attached it to a name, it is much easier:
 ++++
 
 We can also find it by searching for "auction.ethereumbook.eth" in any ENS-compatible wallet or DApp browser (e.g., Mist)(((range="endofrange", startref="ix_12dapps-asciidoc16"))).(((range="endofrange", startref="ix_12dapps-asciidoc11")))(((range="endofrange", startref="ix_12dapps-asciidoc10")))(((range="endofrange", startref="ix_12dapps-asciidoc9")))
+http://swarm-gateways.net/bzz:/auction.ethereumbook.eth/
+我们也可以通过在任何兼容ENS的钱包或DApp浏览器（例如Mist）中搜索“auction.ethereumbook.eth”来找到它。
 
 === From App to DApp
+从App到DApp
 
 Over the past several sections, we have gradually built a decentralized application. We started with a pair of smart contracts to run an auction for ERC721 deeds. These contracts were designed to have no governing or privileged accounts, so that their operation is truly decentralized. We  added a frontend, implemented in JavaScript, that offers a convenient and user-friendly interface to our DApp. The auction DApp uses the decentralized storage system Swarm to store application resources such as images. The DApp also uses the decentralized communications protocol Whisper to offer an encrypted chat room for each auction, without any central servers.
-
+在过去的几个部分中，我们逐渐构建了一个分散的应用程序。我们从一对智能合约开始，为ERC721事迹进行拍卖。这些合同旨在没有管理或特权账户，因此他们的运作真正分散。我们添加了一个用JavaScript实现的前端，它为我们的DApp提供了一个方便且用户友好的界面。拍卖DApp使用分散存储系统Swarm来存储应用程序资源，例如图像。 DApp还使用分散式通信协议Whisper为每次拍卖提供加密聊天室，而无需任何中央服务器。
+ 
 We uploaded the entire frontend to Swarm, so that our DApp doesn't rely on any web servers to serve the files. Finally, we allocated a name for our DApp using ENS, connecting it to the Swarm hash of the frontend, so that users can access it with a simple and easy-to-remember human-readable name.
+我们将整个前端上传到Swarm，以便我们的DApp不依赖任何Web服务器来提供文件。最后，我们使用ENS为DApp分配了一个名称，将其连接到前端的Swarm哈希，以便用户可以使用简单易记的人类可读名称访问它。
 
 With each of these steps, we increased the decentralization of our application. The final result is a DApp that has no central point of authority, no central point of failure, and expresses the "web3" vision.
+通过这些步骤，我们增加了应用程序的分散化。最终结果是DApp没有中心权威点，没有中心点，并且表达了“web3”愿景。
 
 <<auction_dapp_final_architecture>> shows the complete architecture of the Auction DApp.(((range="endofrange", startref="ix_12dapps-asciidoc3")))(((range="endofrange", startref="ix_12dapps-asciidoc2")))
+拍卖DApp架构显示了拍卖DApp的完整架构。
 
 [[auction_dapp_final_architecture]]
 .Auction DApp architecture
 image::images/auction_dapp_final_architecture.png["Auction DApp architecture"]
+图14.拍卖DApp架构
 
 === Conclusions
+结论
 
 Decentralized applications are the culmination of the Ethereum vision, as expressed by the founders from the very earliest designs. While a lot of applications call themselves "DApps" today, most are not fully decentralized. However, it is already possible to construct applications that are almost completely decentralized. Over time, as the technology matures further, more and more of our applications can be decentralized, resulting in a more resilient, censorship-resistant, and free web.(((range="endofrange", startref="ix_12dapps-asciidoc0")))
+分散的应用程序是以太坊愿景的顶点，正如创始人从最早的设计中所表达的那样。虽然许多应用程序今天称自己为“DApps”，但大多数应用程序并未完全分散。但是，已经可以构建几乎完全分散的应用程序。随着时间的推移，随着技术的进一步发展，越来越多的应用程序可以分散，从而产生更具弹性，审查能力和免费的Web。
